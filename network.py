@@ -1,4 +1,5 @@
 import pandapower as pp
+import matplotlib.pyplot as plt
 
 
 from constants import (
@@ -16,130 +17,155 @@ def create_network():
         f_hz=GRID_FREQUENCY,
     )
 
-    HV_GRID_BUS = pp.create_bus(
+    hv_grid_bus = pp.create_bus(
         net,
         vn_kv=HV_VOLTAGE_LEVEL,
         type='b',
         name='HV_GRID_BUS',
     )
 
-    HV_GRID = pp.create_ext_grid(
+    pp.create_ext_grid(
         net,
-        bus=HV_GRID_BUS,
+        bus=hv_grid_bus,
         vm_pu=1.0,
         name='HV_GRID',
     )
 
-    MV_MAIN_BUS = pp.create_bus(
+    mv_main_bus = pp.create_bus(
         net,
         vn_kv=MV_VOLTAGE_LEVEL,
         type='b',
         name='MV_MAIN_BUS',
     )
 
-    HV_MV_TRANSFORMER = pp.create_transformer(
+    hv_mv_transformer = pp.create_transformer(
         net,
-        HV_GRID_BUS,
-        MV_MAIN_BUS,
+        hv_grid_bus,
+        mv_main_bus,
         name='HV_MV_TRANSFORMER',
         std_type='25 MVA 110/20 kV',
     )
 
-    HV_MV_TRANSFORMER_CB = pp.create_switch(
+    pp.create_switch(
         net,
-        MV_MAIN_BUS,
-        element=HV_MV_TRANSFORMER,
+        mv_main_bus,
+        element=hv_mv_transformer,
         et='t',
         name='HV_MV_TRANSFORMER_CB',
         closed=True,
     )
 
-    LV_MAIN_BUS = pp.create_bus(
+    lv_main_bus = pp.create_bus(
         net,
         vn_kv=LV_VOLTAGE_LEVEL,
         type='b',
         name='LV_MAIN_BUS',
     )
 
-    MV_LV_TRANSFORMER = pp.create_transformer(
-        net,
-        MV_MAIN_BUS,
-        LV_MAIN_BUS,
-        name='MV_LV_TRANSFORMER',
-        std_type='0.63 MVA 20/0.4 kV',
-    )
-
-    LV_LOAD_1 = pp.create_load(
-        net,
-        LV_MAIN_BUS,
-        p_mw=0.25,
-        q_mvar=0.15,
-        name='LV_LOAD_1',
-    )
-
-    MV_FEEDER_A_MID_BUS = pp.create_bus(
+    mv_feeder_a_mid_bus = pp.create_bus(
         net,
         vn_kv=MV_VOLTAGE_LEVEL,
         type='b',
         name='MV_FEEDER_A_MID_BUS',
     )
 
-    MV_LINE_1 = pp.create_line(
+    pp.create_line(
         net,
-        MV_MAIN_BUS,
-        MV_FEEDER_A_MID_BUS,
+        mv_main_bus,
+        mv_feeder_a_mid_bus,
         length_km=3.0,
         parallel=1.0,
         std_type='184-AL1/30-ST1A 20.0',
         name='FEEDER_A_SECTION_1',
     )
 
-    MV_FEEDER_A_END_BUS = pp.create_bus(
+    mv_feeder_a_end_bus = pp.create_bus(
         net,
         vn_kv=MV_VOLTAGE_LEVEL,
         type='b',
         name='MV_FEEDER_A_END_BUS',
     )
 
-    MV_LINE_2 = pp.create_line(
+    pp.create_line(
         net,
-        MV_FEEDER_A_MID_BUS,
-        MV_FEEDER_A_END_BUS,
-        length_km=5.0,
+        mv_feeder_a_mid_bus,
+        mv_feeder_a_end_bus,
+        length_km=3.0,
         std_type='184-AL1/30-ST1A 20.0',
         name='FEEDER_A_SECTION_2',
     )
 
-    MV_LOAD_1 = pp.create_load(
+    pp.create_load(
         net,
-        MV_FEEDER_A_END_BUS,
-        p_mw=7.0,
-        q_mvar=0.9,
+        mv_feeder_a_end_bus,
+        p_mw=10.0,
+        q_mvar=1.0,
         name='MV_LOAD_1',
     )
 
-    MV_FEEDER_B_END_BUS = pp.create_bus(
+    mv_feeder_b_end_bus = pp.create_bus(
         net,
         vn_kv=MV_VOLTAGE_LEVEL,
         type='b',
         name='MV_FEEDER_B_END_BUS',
     )
 
-    MV_LINE_3 = pp.create_line(
+    pp.create_line(
         net,
-        MV_MAIN_BUS,
-        MV_FEEDER_B_END_BUS,
-        length_km=10.0,
+        mv_main_bus,
+        mv_feeder_b_end_bus,
+        length_km=6.0,
         std_type='184-AL1/30-ST1A 20.0',
         name='FEEDER_B_SECTION_1',
     )
 
-    MV_LOAD_2 = pp.create_load(
+    pp.create_load(
         net,
-        MV_FEEDER_B_END_BUS,
-        p_mw=5,
-        q_mvar=0.8,
+        mv_feeder_b_end_bus,
+        p_mw=7.0,
+        q_mvar=0.9,
         name='MV_LOAD_2',
+    )
+
+    mv_feeder_c_mid_bus = pp.create_bus(
+        net,
+        vn_kv=MV_VOLTAGE_LEVEL,
+        type='b',
+        name='MV_FEEDER_C_MID_BUS',
+    )
+
+    pp.create_line(
+        net,
+        mv_main_bus,
+        mv_feeder_c_mid_bus,
+        length_km=2.0,
+        parallel=1.0,
+        std_type='184-AL1/30-ST1A 20.0',
+        name='FEEDER_C_SECTION_1',
+    )
+
+    pp.create_transformer(
+        net,
+        mv_feeder_c_mid_bus,
+        lv_main_bus,
+        name='MV_LV_TRANSFORMER',
+        std_type='0.63 MVA 20/0.4 kV',
+    )
+
+    pp.create_load(
+        net,
+        lv_main_bus,
+        p_mw=0.25,
+        q_mvar=0.15,
+        name='LV_LOAD_1',
+    )
+
+    pp.create_sgen(
+        net,
+        bus=mv_feeder_b_end_bus,
+        p_mw=1.5,
+        q_mvar=0.0,
+        name='PV_FEEDER_B',
     )
 
     return net
@@ -150,18 +176,18 @@ def main():
     net = create_network()
     pp.runpp(net)
 
-    print('\n' + '*' * 90)
+    print('\n' + '-' * 90)
     print('BUS RESULTS')
-    print('*' * 90)
+    print('-' * 90)
 
     bus_results = net.bus[['name', 'vn_kv']].join(
-        net.res_bus[['vm_pu', 'va_degree', 'p_mw', 'q_mvar']]
+        net.res_bus[['vm_pu', 'p_mw', 'q_mvar']]
     )
     print(bus_results)
 
-    print('\n' + '*' * 90)
+    print('\n' + '-' * 90)
     print('LINE RESULTS')
-    print('*' * 90)
+    print('-' * 90)
 
     line_results = net.line[
         [
@@ -175,9 +201,9 @@ def main():
     )
     print(line_results)
 
-    print('\n' + '*' * 90)
+    print('\n' + '-' * 90)
     print('TRANSFORMER RESULTS')
-    print('*' * 90)
+    print('-' * 90)
 
     trafo_results = net.trafo[['name', 'std_type']].join(
         net.res_trafo[
@@ -192,7 +218,16 @@ def main():
     )
     print(trafo_results)
 
-    print('\n' + '*' * 90)
+    print('\n' + '-' * 90)
+
+    pp.plotting.to_html(
+        net,
+        'D:\\Projects\\test_projects_2026\\pandapower_test\\results.html',
+        respect_switches=True,
+        include_lines=True,
+        include_trafos=True,
+        show_tables=True,
+    )
 
     pp.plotting.simple_plot(
         net,
@@ -203,10 +238,10 @@ def main():
         trafo_size=3.0,
         plot_loads=False,
         plot_gens=False,
-        plot_sgens=False,
+        plot_sgens=True,
         load_size=1.0,
         gen_size=1.0,
-        sgen_size=1.0,
+        sgen_size=2.0,
         switch_size=2.0,
         switch_distance=1.0,
         plot_line_switches=True,
@@ -223,9 +258,27 @@ def main():
         vsc_size=2.0,
         vsc_color='orange'
     )
+    # получить напряжения
+    bus_names = net.bus['name']
+    voltages = net.res_bus['vm_pu']
 
-    # check = pp.available_std_types(net, element='line')
-    # print(check)
+    plt.figure(figsize=(10, 6))
+
+    plt.plot(bus_names, voltages, marker='o')
+
+    plt.axhline(1.0, linestyle='--', label='Nominal voltage')
+    plt.axhline(0.95, linestyle=':', label='Lower limit')
+
+    plt.title('Bus Voltage Profile')
+    plt.ylabel('Voltage (p.u.)')
+    plt.xlabel('Bus')
+
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
 
 
 if __name__ == '__main__':
