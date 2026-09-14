@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pandapower-test-network"
+version = "0.1.0"
+description = "A small medium- and low-voltage test network built with pandapower."
+requires-python = ">=3.10"
+dependencies = [
+    "pandapower>=3.0",
+    "matplotlib>=3.7",
+]
+
+[project.scripts]
+pandapower-test-network = "main:main"
